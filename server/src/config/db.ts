@@ -1,4 +1,6 @@
-import mongoose, { ConnectOptions } from 'mongoose';
+import mongoose from 'mongoose';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const mongoDataBase: string = String(process.env.DB_LOCAL);
 

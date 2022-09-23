@@ -5,7 +5,6 @@ import { IUser } from '../types';
 const cryptSalt: string = String(process.env.CRYPTO_SALT);
 
 async function emailValidation(value: string) {
-    // finish validation
     if (!value) return false;
     const user = await UserModel.findOne({ email: value });
     if (user) return false;
@@ -13,7 +12,7 @@ async function emailValidation(value: string) {
 }
 
 const UserSchema = new Schema<IUser>({
-    name: String,
+    userName: String,
     email: {
         type: String,
         required: [true, "Please enter valid email address"],
@@ -42,3 +41,5 @@ UserSchema.pre('save', async function name(next) {
 
 
 const UserModel = model<IUser>('users', UserSchema);
+
+export default UserModel;
