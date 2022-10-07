@@ -25,7 +25,6 @@ const URLSchema = new Schema<IURL>({
             validator: checkUniqueURL,
             message: props => `This URL has already been used.`,
         },
-        unique: true,
     }
 });
 

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, response, Response } from 'express';
 import crypto from 'crypto';
 
 import { IURL } from "../types"
@@ -50,7 +50,6 @@ const urlController = {
             targetURL,
             shortURL,
         });
-
         try {
             await newURL.save();
         }
@@ -60,8 +59,60 @@ const urlController = {
             }
         }
 
-        res.status(201).json(responseGenerate(201, "New Short URL created!", null));
+        res.status(201).json(responseGenerate(201, "New Short URL created!", newURL));
     },
+    async getSingleURL(req: Request, res: Response) {
+        const { userToken = null } = req.cookies;
+        const { id = null } = req.params;
+        if (!userToken) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const user = await UserModel.findOne({ userToken });
+        if (!user) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const url = await URLModel.findById(id);
+        if (!url) return res.status(404).json(responseGenerate(404, "Short URL not found", null));
+
+        res.status(200).json(responseGenerate(200, null, url));
+    },
+    async editURL(req: Request, res: Response) {
+        const { userToken = null } = req.cookies;
+        const { id = null } = req.params;
+        const { shortURL = null } = req.body;
+        if (!userToken) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const user = await UserModel.findOne({ userToken });
+        if (!user) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        if (shortURL) {
+            const url = await URLModel.findOne({ shortURL });
+            if (url) return res.status(403).json(responseGenerate(403, 'This URL has already been used.', null));
+        }
+
+        try {
+            const url = await URLModel.findByIdAndUpdate(id, {
+                $set: req.body,
+            });
+        } catch (error) {
+            console.log(error)
+            if (error instanceof Error) {
+                return res.status(403).json(responseGenerate(403, error.message, null));
+            }
+        }
+
+        res.status(200).json(responseGenerate(200, "Updated Successfully.", null));
+    },
+    async deleteURL(req: Request, res: Response) {
+        const { userToken = null } = req.cookies;
+        const { id = null } = req.params;
+        if (!userToken) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const user = await UserModel.findOne({ userToken });
+        if (!user) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const url = await URLModel.findByIdAndDelete(id);
+
+        res.status(200).json(responseGenerate(200, "Deleted Successfully.", url));
+    }
 }
 
 export default urlController;   
