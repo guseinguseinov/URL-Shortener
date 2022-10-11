@@ -1,5 +1,6 @@
 import { Request, response, Response } from 'express';
 import crypto from 'crypto';
+import shortid from 'shortid';
 
 import { IURL } from "../types"
 import URLModel from '../models/Url';
@@ -43,7 +44,7 @@ const urlController = {
         let isValid = validURL(targetURL)
         if (!isValid) return res.status(422).json(responseGenerate(422, "Invalid URL", null));
 
-        let shortURL = crypto.randomBytes(6).toString('base64');
+        let shortURL = shortid.generate();
 
         const newURL = new URLModel<IURL>({
             userId: user._id,
@@ -112,6 +113,19 @@ const urlController = {
         const url = await URLModel.findByIdAndDelete(id);
 
         res.status(200).json(responseGenerate(200, "Deleted Successfully.", url));
+    },
+    async getShort(req: Request, res: Response) {
+        const { userToken = null } = req.cookies;
+        const { id = null } = req.params;
+        if (!userToken) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const user = await UserModel.findOne({ userToken });
+        if (!user) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        const url = await URLModel.findOne({ shortURL: id });
+        if (!url) return res.status(404).json(responseGenerate(404, "Short URL not found", null));
+
+        res.status(200).json(responseGenerate(200, null, url));
     }
 }
 

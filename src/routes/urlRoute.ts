@@ -9,5 +9,6 @@ URLRoute.get("/:id", catchError(urlController.getSingleURL));
 URLRoute.post("/", catchError(urlController.makeNewURL));
 URLRoute.patch('/:id', catchError(urlController.editURL));
 URLRoute.delete('/:id', catchError(urlController.deleteURL));
+URLRoute.get("/short/:id", catchError(urlController.getShort));
 
 export default URLRoute;

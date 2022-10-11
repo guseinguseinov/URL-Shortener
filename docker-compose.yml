@@ -19,3 +19,4 @@ services:
     environment:
       - DB_LOCAL=mongodb://gusein:12345@mongo:27017/
       - NODE_ENV=production
+      - CLIENT_URL=http://localhost:3000

@@ -4,6 +4,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
+import cors from 'cors';
 
 import connectDB from './config/db';
 import UserRoute from './routes/userRoute';
@@ -17,6 +18,10 @@ connectDB();
 
 const app: Express = express();
 
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
