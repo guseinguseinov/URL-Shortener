@@ -78,11 +78,18 @@ const urlController = {
     async editURL(req: Request, res: Response) {
         const { userToken = null } = req.cookies;
         const { id = null } = req.params;
-        const { shortURL = null } = req.body;
+        const { shortURL = null, targetURL = null } = req.body;
+
+        if (!shortURL || !targetURL) return res.status(404).json(responseGenerate(404, "URL can not be null!", null));
+
         if (!userToken) return res.status(404).json(responseGenerate(404, "User not found", null));
 
         const user = await UserModel.findOne({ userToken });
         if (!user) return res.status(404).json(responseGenerate(404, "User not found", null));
+
+        if (targetURL) {
+            if (!validURL(targetURL)) return res.status(422).json(responseGenerate(422, "Invalid URL", null));
+        }
 
         if (shortURL) {
             const url = await URLModel.findOne({ shortURL });
